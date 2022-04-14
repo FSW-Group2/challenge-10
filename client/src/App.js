@@ -13,6 +13,9 @@ import { auth } from "./config/firebase";
 import AuthMiddleware from "./middlewares/Auth";
 import BasicGrid from "./pages/ProfilePages";
 import Leaderboard from "./pages/Leaderboard";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function App() {
   const [isAuthenticated, setisAuthenticated] = useState(null);
 
@@ -25,40 +28,39 @@ function App() {
 
   return (
     <div className="App">
-      <AuthContext.Provider value={isAuthenticated}>
-        <Routes>
-          <Route path="/" element={<Homepage />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/listplayer"
-            element={
-              <AuthMiddleware>
-                <ListPlayer />
-              </AuthMiddleware>
-            }
-          />
-          <Route path="/listgame" element={<List />} />
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/listplayer"
+          element={
+            <AuthMiddleware>
+              <ListPlayer />
+            </AuthMiddleware>
+          }
+        />
+        <Route path="/listgame" element={<List />} />
 
-          <Route
-            path="/games"
-            element={
-              <AuthMiddleware>
-                <Games />
-              </AuthMiddleware>
-            }
-          />
-          <Route path="/profile" element={<BasicGrid />} />
-          <Route
-            path="/leaderboard"
-            element={
-              <AuthMiddleware>
-                <Leaderboard />
-              </AuthMiddleware>
-            }
-          />
-        </Routes>
-      </AuthContext.Provider>
+        <Route
+          path="/games"
+          element={
+            <AuthMiddleware>
+              <Games />
+            </AuthMiddleware>
+          }
+        />
+        <Route path="/profile" element={<BasicGrid />} />
+        <Route
+          path="/leaderboard"
+          element={
+            <AuthMiddleware>
+              <Leaderboard />
+            </AuthMiddleware>
+          }
+        />
+      </Routes>
+      <ToastContainer />
     </div>
   );
 }

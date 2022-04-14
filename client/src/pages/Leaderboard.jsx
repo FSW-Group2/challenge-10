@@ -9,32 +9,19 @@ import {
 } from "@mui/material";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { HashLoader } from "react-spinners";
 import styled from "styled-components";
 import MenuAppBar from "../components/Navbar";
-import { db } from "../config/firebase";
 import leaderboard from "../images/leaderboard.jpg";
 
 function Leaderboard() {
   const [players, setPlayers] = useState([]);
+  const lead = useSelector((state) => state.lead);
   const [isLoading, setisLoading] = useState(true);
-  const userCollectionRef = collection(db, "users");
-  const q = query(userCollectionRef, orderBy("total_score", "desc"));
-  useEffect(() => {
-    const getDataPlayer = async () => {
-      const data = await getDocs(q);
-      setTimeout(() => {
-        setisLoading(false);
-        setPlayers(data.docs.map((doc) => ({ ...doc.data() })));
-      });
-    };
-    getDataPlayer();
-    console.log(players);
-  }, []);
   return (
     <Wrapper>
       <MenuAppBar />
-      <LoadingView>{isLoading && <HashLoader color="white" />}</LoadingView>
       <TableContainer>
         <TableContainer
           sx={{
@@ -57,9 +44,8 @@ function Leaderboard() {
           </TableHead>
 
           <TableBody>
-            {players.map((item, index) => (
+            {lead.map((item, index) => (
               <TableRow
-                key={item.uid}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
@@ -68,7 +54,7 @@ function Leaderboard() {
                 <TableCell align="right">{item.username}</TableCell>
                 <TableCell align="right">{item.email}</TableCell>
                 <TableCell align="right">{item.gender}</TableCell>
-                <TableCell align="right">{item.total_score}</TableCell>
+                <TableCell align="right">{item.score}</TableCell>
               </TableRow>
             ))}
           </TableBody>

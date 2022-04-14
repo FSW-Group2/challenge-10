@@ -1,16 +1,13 @@
-import { auth } from "./../config/firebase";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
 function AuthMiddleware(props) {
   let navigate = useNavigate();
+  const token = localStorage.getItem("user");
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        navigate("/login");
-        return;
-      }
-    });
+    if (!token) {
+      navigate("/login");
+      return;
+    }
   }, []);
   return <div>{props.children}</div>;
 }

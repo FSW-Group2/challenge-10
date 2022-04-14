@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import background from "./../images/sg.jpg";
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
@@ -22,14 +22,17 @@ import GoogleIcon from "@mui/icons-material/Google";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../config/firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { reset, login } from "../feature/auth/authSlice";
+import { toast } from "react-toastify";
 
 function Login() {
-  const [login, setLogin] = useState({
-    email: "",
+  const [formData, setformData] = useState({
+    username: "",
     password: "",
   });
+
+  const { username, password } = formData;
 
   const [values, setValues] = useState({
     showPassword: false,
@@ -37,28 +40,34 @@ function Login() {
 
   const [isToggle, setisToggle] = useState("");
 
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { user, isLoading, isSuccess, isError, message } = useSelector(
+    (state) => state.auth
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await signInWithEmailAndPassword(auth, login.email, login.password)
-      .then(() => {
-        navigate("/");
-      })
-      .catch((error) => {
-        if (error) {
-          const errorCode = error.code.split("auth/")[1];
-          const errorMessage = error.message;
-          setisToggle(errorCode);
-        }
-      });
-
-    setLogin({
-      email: "",
-      password: "",
-    });
+    const userData = {
+      username,
+      password,
+    };
+    dispatch(login(userData));
   };
+
+  useEffect(() => {
+    if (isError) {
+      toast.error("error!");
+    }
+
+    if (isSuccess || user) {
+      navigate("/");
+    }
+
+    dispatch(reset());
+  }, [isError, user, isSuccess, message, navigate, dispatch]);
 
   const handleClickShowPassword = () => {
     setValues({
@@ -83,13 +92,15 @@ function Login() {
           <TwitterIcon />
         </Logo>
         <Card>
-          {isToggle && <Alert severity="error">{isToggle}</Alert>}
+          {/* {isToggle && <Alert severity="error">{isToggle}</Alert>} */}
           <form onSubmit={(e) => handleSubmit(e)}>
             <FormControl sx={{ m: 1, width: "25ch" }} variant="standard">
-              <InputLabel>Email</InputLabel>
+              <InputLabel>Username</InputLabel>
               <Input
-                value={login.email}
-                onChange={(e) => setLogin({ ...login, email: e.target.value })}
+                value={login.username}
+                onChange={(e) =>
+                  setformData({ ...formData, username: e.target.value })
+                }
                 startAdornment={
                   <InputAdornment position="start">
                     <IconButton>
@@ -108,7 +119,7 @@ function Login() {
                 type={values.showPassword ? "text" : "password"}
                 value={login.password}
                 onChange={(e) =>
-                  setLogin({ ...login, password: e.target.value })
+                  setformData({ ...formData, password: e.target.value })
                 }
                 endAdornment={
                   <InputAdornment position="end">

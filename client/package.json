@@ -1,6 +1,7 @@
 {
   "name": "challenge-9",
   "version": "0.1.0",
+  "proxy": "http://localhost:7001",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.8.2",
@@ -10,6 +11,7 @@
     "@mui/lab": "^5.0.0-alpha.75",
     "@mui/material": "^5.5.2",
     "@mui/styled-engine-sc": "^5.5.2",
+    "@reduxjs/toolkit": "^1.8.1",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
@@ -21,10 +23,15 @@
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.28.1",
     "react-icons": "^4.3.1",
+    "react-redux": "^7.2.8",
     "react-router-dom": "^6.2.2",
     "react-scripts": "5.0.0",
     "react-spinners": "^0.11.0",
+    "react-toastify": "^8.2.0",
+    "redux": "^4.1.2",
+    "redux-thunk": "^2.4.1",
     "styled-components": "^5.3.3",
+    "thunk": "^0.0.1",
     "web-vitals": "^2.1.4",
     "yup": "^0.32.11"
   },

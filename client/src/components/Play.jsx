@@ -5,10 +5,24 @@ import kertas from "../images/icon-paper.svg";
 import batu from "../images/icon-rock.svg";
 import gunting from "../images/icon-scissors.svg";
 import { Modal, Box, Typography } from "@mui/material";
-import { updateDoc, doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../config/firebase";
+import { updateDoc } from "firebase/firestore";
+import { auth } from "../config/firebase";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+import MenuAppBar from "../components/Navbar";
+import { useDispatch, useSelector } from "react-redux";
+import { updateScore } from "../feature/leaderboard/leadSlice";
 
 const Play = () => {
+  const lead = useSelector((state) => state.lead);
+  const dispatch = useDispatch();
   const [computer, setComputer] = useState("");
   const [score, setScore] = useState(0);
   const [choise, setChoise] = useState("");
@@ -17,6 +31,7 @@ const Play = () => {
   const [result, setResult] = useState(null);
   const [refresh, setRefresh] = useState(false);
   const [open, setOpen] = useState(false);
+  const [selectedIndex, setselectedIndex] = useState(null);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -48,12 +63,17 @@ const Play = () => {
     p: 4,
   };
 
-  const handleRefresh = async (id) => {
-    const userDoc = doc(db, "users", id);
-    const docSnap = await getDoc(userDoc);
-    const currentScore = docSnap.data().total_score;
-    const newScore = { total_score: currentScore + score };
-    await updateDoc(userDoc, newScore);
+  const handleRefresh = (userIndex) => {
+    console.log("ini index", userIndex);
+    setselectedIndex(userIndex);
+    dispatch(
+      updateScore({
+        selectedIndex,
+
+        score,
+      })
+    );
+    console.log("ini berapa", selectedIndex);
     setChoise("");
     setScore(0);
     setRound(0);
@@ -90,117 +110,163 @@ const Play = () => {
   }, [computer, choise]);
 
   return (
-    <Wrapper>
-      <Played>
-        <Player>
-          <h5>You Pick</h5>
-          {choise === "paper" && (
-            <IconChoise>
-              <img src={kertas} alt="kertas" />
-            </IconChoise>
-          )}
-          {choise === "rock" && (
-            <IconChoise>
-              <img src={batu} alt="batu" />
-            </IconChoise>
-          )}
-          {choise === "scissor" && (
-            <IconChoise>
-              <img src={gunting} alt="gunting" />
-            </IconChoise>
-          )}
-        </Player>
-        <Computer>
-          <h5>Computer Pick</h5>
-          <div>
-            {computer === "paper" && (
+    <>
+      <Wrapper>
+        <Played>
+          <Player>
+            <h5>You Pick</h5>
+            {choise === "paper" && (
               <IconChoise>
                 <img src={kertas} alt="kertas" />
               </IconChoise>
             )}
-            {computer === "rock" && (
+            {choise === "rock" && (
               <IconChoise>
                 <img src={batu} alt="batu" />
               </IconChoise>
             )}
-            {computer === "scissor" && (
+            {choise === "scissor" && (
               <IconChoise>
                 <img src={gunting} alt="gunting" />
               </IconChoise>
             )}
-          </div>
-        </Computer>
-      </Played>
-      {refresh && (
-        <div onClick={() => handleRefresh(auth.currentUser.uid)}>
-          <img src={refreshimg} alt="refresh" />
-        </div>
-      )}
-
-      <div>
-        <h1>{result}</h1>
-        <Point>
-          <Round>
-            <span>Round</span>
-            <div>{round}</div>
-          </Round>
-          <Round>
-            <span>Score</span>
-            <div>{score}</div>{" "}
-          </Round>
-        </Point>
-      </div>
-
-      <Picked>
-        {active ? (
-          <ChoiseFirst>
-            <IconChoise onClick={() => setMyChoise("paper")}>
-              <img src={kertas} alt="kertas" />
-            </IconChoise>
-
-            <IconChoise onClick={() => setMyChoise("rock")}>
-              <img src={batu} alt="batu" />
-            </IconChoise>
-
-            <IconChoise onClick={() => setMyChoise("scissor")}>
-              <img src={gunting} alt="gunting" />
-            </IconChoise>
-          </ChoiseFirst>
-        ) : (
-          <Choise>
-            <IconChoise data-id="paper">
-              <img src={kertas} alt="kertas" />
-            </IconChoise>
-
-            <IconChoise data-id="paper">
-              <img src={batu} alt="batu" />
-            </IconChoise>
-
-            <IconChoise data-id="paper">
-              <img src={gunting} alt="gunting" />
-            </IconChoise>
-          </Choise>
-        )}
-      </Picked>
-
-      <ButtonNav onClick={handleOpen}>Rules Games</ButtonNav>
-      <Modal open={open} onClose={handleClose}>
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Rules Rock Scissor Paper Games
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            <div>1. Permainan berlangsung dalam 3 ronde</div>
-            <div>2. Jika menang mendapatkan 1 poin</div>
-            <div>3. Jika kalah kehilangan 1 poin</div>
+          </Player>
+          <Computer>
+            <h5>Computer Pick</h5>
             <div>
-              4. Jika permainan telah selesai, klik refresh untuk mendapatkan
-              score di leaderboard dan mulai game kembali
+              {computer === "paper" && (
+                <IconChoise>
+                  <img src={kertas} alt="kertas" />
+                </IconChoise>
+              )}
+              {computer === "rock" && (
+                <IconChoise>
+                  <img src={batu} alt="batu" />
+                </IconChoise>
+              )}
+              {computer === "scissor" && (
+                <IconChoise>
+                  <img src={gunting} alt="gunting" />
+                </IconChoise>
+              )}
             </div>
-          </Typography>
-        </Box>
-      </Modal>
-    </Wrapper>
+          </Computer>
+        </Played>
+
+        <div>
+          <h1>{result}</h1>
+          <Point>
+            <Round>
+              <span>Round</span>
+              <div>{round}</div>
+            </Round>
+            <Round>
+              <span>Score</span>
+              <div>{score}</div>{" "}
+            </Round>
+          </Point>
+        </div>
+
+        <Picked>
+          {active ? (
+            <ChoiseFirst>
+              <IconChoise onClick={() => setMyChoise("paper")}>
+                <img src={kertas} alt="kertas" />
+              </IconChoise>
+
+              <IconChoise onClick={() => setMyChoise("rock")}>
+                <img src={batu} alt="batu" />
+              </IconChoise>
+
+              <IconChoise onClick={() => setMyChoise("scissor")}>
+                <img src={gunting} alt="gunting" />
+              </IconChoise>
+            </ChoiseFirst>
+          ) : (
+            <Choise>
+              <IconChoise data-id="paper">
+                <img src={kertas} alt="kertas" />
+              </IconChoise>
+
+              <IconChoise data-id="paper">
+                <img src={batu} alt="batu" />
+              </IconChoise>
+
+              <IconChoise data-id="paper">
+                <img src={gunting} alt="gunting" />
+              </IconChoise>
+            </Choise>
+          )}
+        </Picked>
+
+        <ButtonNav onClick={handleOpen}>Rules Games</ButtonNav>
+        <Modal open={open} onClose={handleClose}>
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Rules Rock Scissor Paper Games
+            </Typography>
+            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+              <div>1. Permainan berlangsung dalam 3 ronde</div>
+              <div>2. Jika menang mendapatkan 1 poin</div>
+              <div>3. Jika kalah kehilangan 1 poin</div>
+              <div>
+                4. Jika permainan telah selesai, klik refresh untuk mendapatkan
+                score di leaderboard dan mulai game kembali
+              </div>
+            </Typography>
+          </Box>
+        </Modal>
+      </Wrapper>
+      <Wrapper>
+        {/* <MenuAppBar /> */}
+        <TableContainer>
+          <TableContainer
+            sx={{
+              border: "1px solid rgba(0,0,0,0.2)",
+              width: "max-content",
+              marginLeft: "auto",
+              marginRight: "auto",
+              backgroundColor: "white",
+            }}
+            aria-label="simple table"
+          >
+            <TableHead>
+              <TableRow>
+                <TableCell>No</TableCell>
+                <TableCell align="right">Username</TableCell>
+                <TableCell align="right">Email</TableCell>
+                <TableCell align="right">Gender</TableCell>
+                <TableCell align="right">Score</TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {lead.map((item, userIndex) => (
+                <>
+                  {refresh && (
+                    <div onClick={() => handleRefresh(userIndex)}>
+                      <img src={refreshimg} alt="refresh" />
+                    </div>
+                  )}
+                  <TableRow
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell component="th" scope="row" key={item.userIndex}>
+                      {userIndex + 1}
+                    </TableCell>
+                    <TableCell align="right">{item.username}</TableCell>
+                    <TableCell align="right">{item.email}</TableCell>
+                    <TableCell align="right">{item.gender}</TableCell>
+                    <TableCell align="right">{item.score}</TableCell>
+                  </TableRow>
+                </>
+              ))}
+            </TableBody>
+          </TableContainer>
+        </TableContainer>
+        ;
+      </Wrapper>
+    </>
   );
 };
 
